@@ -311,10 +311,12 @@ class Wasi_Api_Client {
 			$url_trans_name = 'wasi' . str_replace( '/', '-', $url );
 
 			// Cache duration from options of default 7 days...
-			$cache_days = isset( $this->api_data['cache_duration'] ) ? $this->api_data['cache_duration'] : 7;
-			if ( $cache_days <= 0 ) {
-				$cache_days = 1;
-			}
+			$cache_days = isset( $this->api_data['cache_duration'] ) 
+				? $this->api_data['cache_duration'] 
+				: 60000; // 1 minuto
+			
+			if ( $cache_days <= 0 ) { $cache_days = 60000; }
+			
 			// By default enable trans for requests without params or only with pagination (take param).
 			if ( empty( $params ) || ( 1 === count( $params ) && isset( $params['take'] ) ) ) {
 				$url_trans_name .= isset( $params['take'] ) ? '_' . $params['take'] : '';
@@ -366,7 +368,9 @@ class Wasi_Api_Client {
 			if ( $force_save_trans || $create_trans && $result ) {
 				unset( $result->status );
 
-				$expiration = 3600 * 24 * $cache_days; // 3600*24*7; // WEEK_IN_SECONDS
+				// ajusta este valor para que sea compatible con nuestro calculo en milisegundos
+				// $expiration = 3600 * 24 * $cache_days; // 3600*24*7; // WEEK_IN_SECONDS
+				$expiration = $cache_days / 1000; // milisegundos
 				set_transient( $url_trans_name, $result, $expiration );
 			}
 			return $result;

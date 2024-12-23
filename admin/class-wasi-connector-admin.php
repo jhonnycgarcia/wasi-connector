@@ -367,7 +367,7 @@ class Wasi_Connector_Admin {
 			isset( $this->options['cache_duration'] ) ? esc_attr( $this->options['cache_duration'] ) : '7'
 		);
 		echo '<br /> <small>';
-		echo esc_html__( 'Cache duration in days', 'wasico' );
+		echo esc_html__( 'Cache duration in miliseconds', 'wasico' );
 		echo '</small>';
 	}
 
@@ -407,11 +407,12 @@ class Wasi_Connector_Admin {
 		if ( isset( $input['cache_duration'] ) ) {
 			$new_input['cache_duration'] = sanitize_text_field( $input['cache_duration'] );
 			if ( ! is_numeric( $new_input['cache_duration'] ) ) {
-				$new_input['cache_duration'] = 7;
+				$new_input['cache_duration'] = 300000; // 5 minutes
 			}
 
-			if ( $new_input['cache_duration'] < 1 || $new_input['cache_duration'] > 365 ) {
-				$new_input['cache_duration'] = 7;
+			// Si el valor es menor a 60 segundos o mayor a 1 hora, establecemos el valor por defecto.
+			if ( $new_input['cache_duration'] < 60000 || $new_input['cache_duration'] > 3600000 ) {
+				$new_input['cache_duration'] = 60000; // un minuto
 			}
 		}
 
